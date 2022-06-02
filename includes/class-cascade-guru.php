@@ -58,6 +58,8 @@ class cascade_guru
    */
   protected $version;
 
+  protected $bypassVar = 'cascade-guru-bypass-optimizer';
+
   /**
    * Define the core functionality of the plugin.
    *
@@ -151,21 +153,20 @@ class cascade_guru
     $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
     $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 
-    $this->loader->add_filter('query_vars', $this, 'define_query_vars');
+    $this->loader->add_action('init', $this, 'add_custom_endpoints');
 
     $this->loader->add_action('wp', $this, 'blockAllStyles', 100);
   }
 
-  public function define_query_vars($qvars)
+  public function add_custom_endpoints()
   {
-    $qvars[] = 'cascade_guru_optimize';
-    return $qvars;
+    flush_rewrite_rules(true);
+    add_rewrite_endpoint($this->bypassVar, EP_ALL, false);
   }
 
-  public function blockAllStyles($ref)
+  public function blockAllStyles()
   {
-    $shouldOptimize = get_query_var('cascade_guru_optimize', 0);
-    if ($shouldOptimize == 1) {
+    if (!$this->shouldBypass()) {
       function pm_remove_all_scripts()
       {
         global $wp_scripts;
@@ -178,8 +179,25 @@ class cascade_guru
         global $wp_styles;
         $wp_styles->queue = array();
       }
-      //add_action('wp_print_styles', 'pm_remove_all_styles', 100);
+      add_action('wp_print_styles', 'pm_remove_all_styles', 100);
     }
+  }
+
+  private function shouldBypass(): bool
+  {
+    $sanitizedVar = '';
+    $shouldBypass = false;
+    if (isset($_GET[$this->bypassVar])) {
+      $sanitizedVar = filter_var(
+        $_GET[$this->bypassVar],
+        FILTER_SANITIZE_URL
+      );
+      $shouldBypass = filter_var(
+        $sanitizedVar,
+        FILTER_VALIDATE_BOOLEAN
+      );
+    }
+    return $shouldBypass;
   }
 
   /**
@@ -191,20 +209,44 @@ class cascade_guru
   {
     $this->loader->run();
 
-    add_action('template_redirect', function ($ref) {
-      $currentId = get_queried_object_id();
-      $shouldOptimize = get_query_var('cascade_guru_optimize', 0);
+    add_action('template_redirect', function () {
+      $bundleName = $this->bundleName();
 
-      /* var_dump([
-        '$shouldOptimize' => $shouldOptimize,
-        '$currentId' => $currentId,
-        '$ref->ID' => $ref->ID
-      ]); */
-
-      if ($shouldOptimize == 1 /* && $currentId === $ref->ID */) {
-        $this->hitApi();
+      if (!$this->shouldBypass()) {
+        if (file_exists($bundleName['path'])) {
+          $css = file_get_contents($bundleName['path']);
+          add_action(
+            'wp_print_styles',
+            function () use ($css) {
+              //echo "<link id=\"cascade-guru-bundle\" rel=\"stylesheet\" type=\"text/css\" href=\"{$bundleName['url']}\" >";
+              echo "<style id=\"cascade-guru-bundle\">{$css}</style>";
+            },
+            PHP_INT_MAX
+          );
+        } else {
+          $this->hitApi();
+          $css = file_get_contents($bundleName['path']);
+          add_action(
+            'wp_print_styles',
+            function () use ($css) {
+              //echo "<link id=\"cascade-guru-bundle\" rel=\"stylesheet\" type=\"text/css\" href=\"{$bundleName['url']}\" >";
+              echo "<style id=\"cascade-guru-bundle\">{$css}</style>";
+            },
+            PHP_INT_MAX
+          );
+        }
       }
     });
+  }
+
+  private function bundleName()
+  {
+    global $wp;
+    $up = wp_get_upload_dir();
+    return [
+      'path' => $up['basedir'] . '/cg_optimized/' . $wp->request . '/cg_optimized_bundle.css',
+      'url' => $up['baseurl'] . '/cg_optimized/' . $wp->request . '/cg_optimized_bundle.css'
+    ];
   }
 
   private function hitApi()
@@ -218,17 +260,37 @@ class cascade_guru
       $url = home_url($wp->request);
       $package = $curl([
         "email" => "admin@email.com",
-        "targetUrl" => "$url/?cascade-guru-optimize=0",
+        "targetUrl" => "$url/?{$this->bypassVar}=true",
         "apiKey" => "4016f610-a3b6-488d-9a93-de3cdfd9916f"
       ]);
 
       $data = json_decode($package);
-
-      //echo "<style>{$data->css}</style>";
-
+      $css = $data->css;
       $stats = $data->stats;
+      $errors = $data->errors;
 
-      //var_dump($stats);
+      function file_force_contents($dir, $contents)
+      {
+        $dir = str_replace('\\', '/', $dir);
+        $parts = explode('/', $dir);
+        $file = array_pop($parts);
+        $dir = array_shift($parts);
+        foreach ($parts as $part) {
+          if (!is_dir($dir .= DIRECTORY_SEPARATOR . $part)) mkdir($dir);
+        }
+        file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $contents);
+      }
+
+      $bundleName = $this->bundleName();
+
+      file_force_contents($bundleName['path'], $css);
+
+      add_action('wp_print_footer_scripts', function () use ($stats, $errors) {
+        echo '<pre>';
+        var_dump($stats);
+        var_dump($errors);
+        echo '</pre>';
+      });
     } catch (\RuntimeException $ex) {
       // catch errors
       die(sprintf('Http error %s with code %d', $ex->getMessage(), $ex->getCode()));
