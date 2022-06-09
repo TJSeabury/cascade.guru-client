@@ -264,7 +264,20 @@ class cascade_guru
     file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $contents);
   }
 
-      $bundleName = $this->bundleName();
+  private function hitApi(string $url): void
+  {
+    require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-curl-post.php';
+
+    $curl = new CurlPost(CASCADE_GURU_API_ENDPOINT);
+
+    try {
+      $package = $curl([
+        "email" => "admin@cascade.guru",
+        "targetUrl" => "$url?{$this->bypassVar}=true",
+        "apiKey" => "5bcdd24a-9c68-4dec-957a-b01ee12f904d"
+      ]);
+
+      $data = json_decode($package);
 
       $bundleName = $this->bundleName($url);
 
