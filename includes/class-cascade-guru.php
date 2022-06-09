@@ -220,22 +220,12 @@ class cascade_guru
     $this->loader->run();
 
     add_action('template_redirect', function () {
-      $bundleName = $this->bundleName();
-
+      global $wp;
+      $url = home_url($wp->request);
+      $bundleName = $this->bundleName($url);
       if (!$this->shouldBypass()) {
-        if (file_exists($bundleName['path'])) {
-          $css = file_get_contents($bundleName['path']);
-          add_action(
-            'wp_print_styles',
-            function () use ($css) {
-              //echo "<link id=\"cascade-guru-bundle\" rel=\"stylesheet\" type=\"text/css\" href=\"{$bundleName['url']}\" >";
-              echo "<style id=\"cascade-guru-bundle\">{$css}</style>";
-            },
-            PHP_INT_MAX
-          );
-        } else {
-          $this->hitApi();
-          $css = file_get_contents($bundleName['path']);
+        if (file_exists($bundleName['fullPath'])) {
+          $css = file_get_contents($bundleName['fullPath']);
           add_action(
             'wp_print_styles',
             function () use ($css) {
@@ -249,13 +239,15 @@ class cascade_guru
     });
   }
 
-  private function bundleName()
+  private function bundleName($url)
   {
-    global $wp;
+    $url = wp_make_link_relative($url);
     $up = wp_get_upload_dir();
     return [
-      'path' => $up['basedir'] . '/cg_optimized/' . $wp->request . '/cg_optimized_bundle.css',
-      'url' => $up['baseurl'] . '/cg_optimized/' . $wp->request . '/cg_optimized_bundle.css'
+      'fullPath' => $up['basedir'] . '/cg_optimized' . $url . '/cg_optimized_bundle.css',
+      'fullUrl' => $up['baseurl'] . '/cg_optimized' . $url . '/cg_optimized_bundle.css',
+      'path' => $up['basedir'] . '/cg_optimized' . $url . '/',
+      'url' => $up['baseurl'] . '/cg_optimized' . $url . '/'
     ];
   }
 
@@ -293,14 +285,20 @@ class cascade_guru
 
       $bundleName = $this->bundleName();
 
-      file_force_contents($bundleName['path'], $css);
+      $bundleName = $this->bundleName($url);
 
-      add_action('wp_print_footer_scripts', function () use ($stats, $errors) {
-        echo '<pre>';
-        var_dump($stats);
-        var_dump($errors);
-        echo '</pre>';
-      });
+      $this->file_force_contents(
+        $bundleName['fullPath'],
+        $data->css
+      );
+      $this->file_force_contents(
+        $bundleName['path'] . 'stats.json',
+        json_encode($data->stats, JSON_PRETTY_PRINT)
+      );
+      $this->file_force_contents(
+        $bundleName['path'] . 'errors.json',
+        json_encode($data->errors, JSON_PRETTY_PRINT)
+      );
     } catch (\RuntimeException $ex) {
       // catch errors
       die(sprintf('Http error %s with code %d', $ex->getMessage(), $ex->getCode()));
