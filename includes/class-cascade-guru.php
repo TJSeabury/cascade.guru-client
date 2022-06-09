@@ -187,6 +187,16 @@ class cascade_guru
   {
     $sanitizedVar = '';
     $shouldBypass = false;
+    /* if (isset($_SERVER[$this->bypassVar])) {
+      $sanitizedVar = filter_var(
+        $_SERVER[$this->bypassVar],
+        FILTER_SANITIZE_URL
+      );
+      $shouldBypass = filter_var(
+        $sanitizedVar,
+        FILTER_VALIDATE_BOOLEAN
+      );
+    } */
     if (isset($_GET[$this->bypassVar])) {
       $sanitizedVar = filter_var(
         $_GET[$this->bypassVar],
