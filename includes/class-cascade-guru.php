@@ -219,6 +219,11 @@ class cascade_guru
   {
     $this->loader->run();
 
+    add_action('save_post', function ($post_id) {
+      $url = get_page_link($post_id);
+      $this->hitApi($url);
+    });
+
     add_action('template_redirect', function () {
       global $wp;
       $url = home_url($wp->request);
