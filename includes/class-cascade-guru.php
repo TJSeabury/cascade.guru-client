@@ -251,37 +251,18 @@ class cascade_guru
     ];
   }
 
-  private function hitApi()
+  private function file_force_contents($dir, $contents)
   {
-    require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-curl-post.php';
-
-    $curl = new CurlPost(CASCADE_GURU_API_ENDPOINT);
-
-    try {
-      global $wp;
-      $url = home_url($wp->request);
-      $package = $curl([
-        "email" => "admin@email.com",
-        "targetUrl" => "$url/?{$this->bypassVar}=true",
-        "apiKey" => "4016f610-a3b6-488d-9a93-de3cdfd9916f"
-      ]);
-
-      $data = json_decode($package);
-      $css = $data->css;
-      $stats = $data->stats;
-      $errors = $data->errors;
-
-      function file_force_contents($dir, $contents)
-      {
-        $dir = str_replace('\\', '/', $dir);
-        $parts = explode('/', $dir);
-        $file = array_pop($parts);
-        $dir = array_shift($parts);
-        foreach ($parts as $part) {
-          if (!is_dir($dir .= DIRECTORY_SEPARATOR . $part)) mkdir($dir);
-        }
-        file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $contents);
-      }
+    if (empty($contents)) return;
+    $dir = str_replace('\\', '/', $dir);
+    $parts = explode('/', $dir);
+    $file = array_pop($parts);
+    $dir = array_shift($parts);
+    foreach ($parts as $part) {
+      if (!is_dir($dir .= DIRECTORY_SEPARATOR . $part)) mkdir($dir);
+    }
+    file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $contents);
+  }
 
       $bundleName = $this->bundleName();
 
