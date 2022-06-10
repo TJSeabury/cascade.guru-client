@@ -150,8 +150,8 @@ class cascade_guru
 
     $plugin_public = new cascade_guru_Public($this->get_cascade_guru(), $this->get_version());
 
-    $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
-    $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+    //$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
+    //$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 
     $this->loader->add_action('init', $this, 'add_custom_endpoints');
 
@@ -167,19 +167,25 @@ class cascade_guru
   public function blockAllStyles()
   {
     if (!$this->shouldBypass()) {
-      function pm_remove_all_scripts()
+      function cg_remove_all_scripts()
       {
         global $wp_scripts;
         $wp_scripts->queue = array();
       }
-      //add_action('wp_print_scripts', 'pm_remove_all_scripts', 100);
+      //add_action('wp_print_scripts', 'cg_remove_all_scripts', 100);
 
-      function pm_remove_all_styles()
+      function cg_remove_all_styles()
       {
         global $wp_styles;
         $wp_styles->queue = array();
       }
-      add_action('wp_print_styles', 'pm_remove_all_styles', 100);
+      add_action('wp_print_styles', 'cg_remove_all_styles', 1);
+
+      function cg_reenqueue_wpadminbar()
+      {
+        wp_enqueue_style('admin-bar');
+      }
+      //add_action('wp_print_styles', 'cg_reenqueue_wpadminbar', 101);
     }
   }
 
@@ -187,16 +193,6 @@ class cascade_guru
   {
     $sanitizedVar = '';
     $shouldBypass = false;
-    /* if (isset($_SERVER[$this->bypassVar])) {
-      $sanitizedVar = filter_var(
-        $_SERVER[$this->bypassVar],
-        FILTER_SANITIZE_URL
-      );
-      $shouldBypass = filter_var(
-        $sanitizedVar,
-        FILTER_VALIDATE_BOOLEAN
-      );
-    } */
     if (isset($_GET[$this->bypassVar])) {
       $sanitizedVar = filter_var(
         $_GET[$this->bypassVar],
@@ -230,12 +226,12 @@ class cascade_guru
       $bundleName = $this->bundleName($url);
       if (!$this->shouldBypass()) {
         if (file_exists($bundleName['fullPath'])) {
-          $css = file_get_contents($bundleName['fullPath']);
+          //$css = file_get_contents($bundleName['fullPath']);
           add_action(
             'wp_print_styles',
-            function () use ($css) {
-              //echo "<link id=\"cascade-guru-bundle\" rel=\"stylesheet\" type=\"text/css\" href=\"{$bundleName['url']}\" >";
-              echo "<style id=\"cascade-guru-bundle\">{$css}</style>";
+            function () use ($bundleName) {
+              echo "<link id=\"cascade-guru-bundle\" rel=\"preload\" type=\"text/css\" href=\"{$bundleName['fullUrl']}\" rel=\"preload\" as=\"style\" onload=\"this.onload=null;this.rel='stylesheet'\">";
+              echo "<noscript><link id=\"cascade-guru-bundle\" rel=\"stylesheet\" type=\"text/css\" href=\"{$bundleName['fullUrl']}\" ></noscript>";
             },
             PHP_INT_MAX
           );
