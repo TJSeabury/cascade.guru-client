@@ -1,16 +1,18 @@
 <?php
 
+namespace Tjseabury\CascadeGuru\src;
+
 /**
  * The file that defines the core plugin class
  *
- * A class definition that includes attributes and functions used across both the
+ * A class definition that src attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
  * @link       http://example.com
  * @since      1.0.0
  *
  * @package    cascade_guru
- * @subpackage cascade_guru/includes
+ * @subpackage cascade_guru/src
  */
 
 /**
@@ -24,7 +26,7 @@
  *
  * @since      1.0.0
  * @package    cascade_guru
- * @subpackage cascade_guru/includes
+ * @subpackage cascade_guru/src
  * @author     Your Name <email@example.com>
  */
 class cascade_guru
@@ -106,7 +108,7 @@ class cascade_guru
      * The class responsible for orchestrating the actions and filters of the
      * core plugin.
      */
-    require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-cascade-guru-loader.php';
+    require_once plugin_dir_path(dirname(__FILE__)) . 'src/class-cascade-guru-loader.php';
 
     /**
      * The class responsible for defining all actions that occur in the admin area.
@@ -117,7 +119,7 @@ class cascade_guru
      * The class responsible for defining all actions that occur in the public-facing
      * side of the site.
      */
-    require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-cascade-guru-public.php';
+    require_once plugin_dir_path(dirname(__FILE__)) . 'frontend/class-cascade-guru-public.php';
 
     $this->loader = new cascade_guru_Loader();
   }
@@ -131,8 +133,7 @@ class cascade_guru
    */
   private function define_admin_hooks()
   {
-
-    $plugin_admin = new cascade_guru_Admin($this->get_cascade_guru(), $this->get_version());
+    $plugin_admin = new \Tjseabury\CascadeGuru\admin\cascade_guru_Admin($this->get_cascade_guru(), $this->get_version());
 
     $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
     $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
@@ -148,7 +149,7 @@ class cascade_guru
   private function define_public_hooks()
   {
 
-    $plugin_public = new cascade_guru_Public($this->get_cascade_guru(), $this->get_version());
+    $plugin_public = new \Tjseabury\CascadeGuru\frontend\cascade_guru_Public($this->get_cascade_guru(), $this->get_version());
 
     //$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
     //$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
@@ -267,7 +268,7 @@ class cascade_guru
 
   private function hitApi(string $url): void
   {
-    require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-curl-post.php';
+    require_once plugin_dir_path(dirname(__FILE__)) . 'src/class-curl-post.php';
 
     $curl = new CurlPost(CASCADE_GURU_API_ENDPOINT);
 

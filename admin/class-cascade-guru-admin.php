@@ -1,5 +1,7 @@
 <?php
 
+namespace Tjseabury\CascadeGuru\admin;
+
 /**
  * The admin-specific functionality of the plugin.
  *

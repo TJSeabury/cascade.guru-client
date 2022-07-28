@@ -1,5 +1,7 @@
 <?php
 
+namespace Tjseabury\CascadeGuru\src;
+
 /**
  * Register all actions and filters for the plugin
  *
@@ -7,7 +9,7 @@
  * @since      1.0.0
  *
  * @package    cascade_guru
- * @subpackage cascade_guru/includes
+ * @subpackage cascade_guru/src
  */
 
 /**
@@ -18,7 +20,7 @@
  * run function to execute the list of actions and filters.
  *
  * @package    cascade_guru
- * @subpackage cascade_guru/includes
+ * @subpackage cascade_guru/src
  * @author     Your Name <email@example.com>
  */
 class cascade_guru_Loader

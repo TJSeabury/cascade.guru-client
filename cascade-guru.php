@@ -1,10 +1,12 @@
 <?php
 
+namespace Tjseabury\CascadeGuru;
+
 /**
  * The plugin bootstrap file
  *
  * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
+ * admin area. This file also src all of the dependencies used by the plugin,
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
@@ -40,24 +42,35 @@ define('CASCADE_GURU_VERSION', '1.0.0');
  */
 define('CASCADE_GURU_API_ENDPOINT', 'http://localhost:3000/api/service/optimize');
 
+require __DIR__ . '/vendor/autoload.php';
+
+$myUpdateChecker = \Puc_v4_Factory::buildUpdateChecker(
+  'https://github.com/TJSeabury/cascade.guru-client',
+  __FILE__, //Full path to the main plugin file or functions.php.
+  'cascade-guru'
+);
+
+//Set the branch that contains the stable release.
+$myUpdateChecker->setBranch('master');
+
 /**
  * The code that runs during plugin activation.
- * This action is documented in includes/class-cascade-guru-activator.php
+ * This action is documented in src/class-cascade-guru-activator.php
  */
 function activate_cascade_guru()
 {
-  require_once plugin_dir_path(__FILE__) . 'includes/class-cascade-guru-activator.php';
-  cascade_guru_Activator::activate();
+  require_once plugin_dir_path(__FILE__) . 'src/class-cascade-guru-activator.php';
+  \Tjseabury\CascadeGuru\src\cascade_guru_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
- * This action is documented in includes/class-cascade-guru-deactivator.php
+ * This action is documented in src/class-cascade-guru-deactivator.php
  */
 function deactivate_cascade_guru()
 {
-  require_once plugin_dir_path(__FILE__) . 'includes/class-cascade-guru-deactivator.php';
-  cascade_guru_Deactivator::deactivate();
+  require_once plugin_dir_path(__FILE__) . 'src/class-cascade-guru-deactivator.php';
+  \Tjseabury\CascadeGuru\src\cascade_guru_Deactivator::deactivate();
 }
 
 register_activation_hook(__FILE__, 'activate_cascade_guru');
@@ -67,7 +80,7 @@ register_deactivation_hook(__FILE__, 'deactivate_cascade_guru');
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path(__FILE__) . 'includes/class-cascade-guru.php';
+require plugin_dir_path(__FILE__) . 'src/class-cascade-guru.php';
 
 /**
  * Begins execution of the plugin.
@@ -81,7 +94,7 @@ require plugin_dir_path(__FILE__) . 'includes/class-cascade-guru.php';
 function run_cascade_guru()
 {
 
-  $plugin = new cascade_guru();
+  $plugin = new \Tjseabury\CascadeGuru\src\cascade_guru();
   $plugin->run();
 }
 run_cascade_guru();

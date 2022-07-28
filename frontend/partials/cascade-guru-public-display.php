@@ -1,5 +1,7 @@
 <?php
 
+namespace Tjseabury\CascadeGuru\frontend;
+
 /**
  * Provide a public-facing view for the plugin
  *
@@ -9,7 +11,7 @@
  * @since      1.0.0
  *
  * @package    cascade_guru
- * @subpackage cascade_guru/public/partials
+ * @subpackage cascade_guru/frontend/partials
  */
 ?>
 

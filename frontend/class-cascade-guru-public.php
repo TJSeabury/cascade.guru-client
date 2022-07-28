@@ -1,5 +1,7 @@
 <?php
 
+namespace Tjseabury\CascadeGuru\frontend;
+
 /**
  * The public-facing functionality of the plugin.
  *

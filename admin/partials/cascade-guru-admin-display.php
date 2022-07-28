@@ -1,5 +1,7 @@
 <?php
 
+namespace Tjseabury\CascadeGuru\admin;
+
 /**
  * Provide a admin area view for the plugin
  *

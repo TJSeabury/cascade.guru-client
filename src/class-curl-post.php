@@ -1,5 +1,7 @@
 <?php
 
+namespace Tjseabury\CascadeGuru\src;
+
 class CurlPost
 {
   private $url;

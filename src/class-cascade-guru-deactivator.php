@@ -1,26 +1,28 @@
 <?php
 
+namespace Tjseabury\CascadeGuru\src;
+
 /**
- * Fired during plugin activation
+ * Fired during plugin deactivation
  *
  * @link       http://example.com
  * @since      1.0.0
  *
  * @package    cascade_guru
- * @subpackage cascade_guru/includes
+ * @subpackage cascade_guru/src
  */
 
 /**
- * Fired during plugin activation.
+ * Fired during plugin deactivation.
  *
- * This class defines all code necessary to run during the plugin's activation.
+ * This class defines all code necessary to run during the plugin's deactivation.
  *
  * @since      1.0.0
  * @package    cascade_guru
- * @subpackage cascade_guru/includes
+ * @subpackage cascade_guru/src
  * @author     Your Name <email@example.com>
  */
-class cascade_guru_Activator
+class cascade_guru_Deactivator
 {
 
   /**
@@ -30,7 +32,7 @@ class cascade_guru_Activator
    *
    * @since    1.0.0
    */
-  public static function activate()
+  public static function deactivate()
   {
     flush_rewrite_rules(true);
   }
