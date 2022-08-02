@@ -35,7 +35,7 @@ if (!defined('WPINC')) {
 /**
  * Currently plugin version.
  */
-define('CASCADE_GURU_VERSION', '1.0.0');
+define('CASCADE_GURU_VERSION', '0.1.0');
 
 /**
  * API endpoint
