@@ -59,8 +59,7 @@ $myUpdateChecker->setBranch('master');
  */
 function activate_cascade_guru()
 {
-  require_once plugin_dir_path(__FILE__) . 'src/class-cascade-guru-activator.php';
-  \Tjseabury\CascadeGuru\src\cascade_guru_Activator::activate();
+  \Tjseabury\CascadeGuru\src\CascadeGuruActivator::activate();
 }
 
 /**
@@ -69,18 +68,11 @@ function activate_cascade_guru()
  */
 function deactivate_cascade_guru()
 {
-  require_once plugin_dir_path(__FILE__) . 'src/class-cascade-guru-deactivator.php';
-  \Tjseabury\CascadeGuru\src\cascade_guru_Deactivator::deactivate();
+  \Tjseabury\CascadeGuru\src\CascadeGuruDeactivator::deactivate();
 }
 
 register_activation_hook(__FILE__, 'activate_cascade_guru');
 register_deactivation_hook(__FILE__, 'deactivate_cascade_guru');
-
-/**
- * The core plugin class that is used to define internationalization,
- * admin-specific hooks, and public-facing site hooks.
- */
-require plugin_dir_path(__FILE__) . 'src/class-cascade-guru.php';
 
 /**
  * Begins execution of the plugin.
@@ -94,7 +86,11 @@ require plugin_dir_path(__FILE__) . 'src/class-cascade-guru.php';
 function run_cascade_guru()
 {
 
-  $plugin = new \Tjseabury\CascadeGuru\src\cascade_guru();
+  /**
+   * The core plugin class that is used to define internationalization,
+   * admin-specific hooks, and public-facing site hooks.
+   */
+  $plugin = new \Tjseabury\CascadeGuru\src\CascadeGuru();
   $plugin->run();
 }
 run_cascade_guru();

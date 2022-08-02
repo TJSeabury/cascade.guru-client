@@ -29,7 +29,7 @@ namespace Tjseabury\CascadeGuru\src;
  * @subpackage cascade_guru/src
  * @author     Your Name <email@example.com>
  */
-class cascade_guru
+class CascadeGuru
 {
 
   /**
@@ -80,48 +80,14 @@ class cascade_guru
     }
     $this->cascade_guru = 'cascade-guru';
 
-    $this->load_dependencies();
-    $this->define_admin_hooks();
-    $this->define_public_hooks();
-  }
-
-  /**
-   * Load the required dependencies for this plugin.
-   *
-   * Include the following files that make up the plugin:
-   *
-   * - cascade_guru_Loader. Orchestrates the hooks of the plugin.
-   * - cascade_guru_i18n. Defines internationalization functionality.
-   * - cascade_guru_Admin. Defines all hooks for the admin area.
-   * - cascade_guru_Public. Defines all hooks for the public side of the site.
-   *
-   * Create an instance of the loader which will be used to register the hooks
-   * with WordPress.
-   *
-   * @since    1.0.0
-   * @access   private
-   */
-  private function load_dependencies()
-  {
-
     /**
      * The class responsible for orchestrating the actions and filters of the
      * core plugin.
      */
-    require_once plugin_dir_path(dirname(__FILE__)) . 'src/class-cascade-guru-loader.php';
+    $this->loader = new \Tjseabury\CascadeGuru\src\CascadeGuruLoader();
 
-    /**
-     * The class responsible for defining all actions that occur in the admin area.
-     */
-    require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-cascade-guru-admin.php';
-
-    /**
-     * The class responsible for defining all actions that occur in the public-facing
-     * side of the site.
-     */
-    require_once plugin_dir_path(dirname(__FILE__)) . 'frontend/class-cascade-guru-public.php';
-
-    $this->loader = new cascade_guru_Loader();
+    $this->define_admin_hooks();
+    $this->define_public_hooks();
   }
 
   /**
@@ -133,10 +99,11 @@ class cascade_guru
    */
   private function define_admin_hooks()
   {
-    $plugin_admin = new \Tjseabury\CascadeGuru\admin\cascade_guru_Admin($this->get_cascade_guru(), $this->get_version());
+    $plugin_admin = new \Tjseabury\CascadeGuru\admin\CascadeGuruAdmin($this->get_cascade_guru(), $this->get_version());
 
     $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
     $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
+    $this->loader->add_action('wp_ajax_optimize_all', $plugin_admin, 'optimize_all');
   }
 
   /**
@@ -149,7 +116,7 @@ class cascade_guru
   private function define_public_hooks()
   {
 
-    $plugin_public = new \Tjseabury\CascadeGuru\frontend\cascade_guru_Public($this->get_cascade_guru(), $this->get_version());
+    $plugin_public = new \Tjseabury\CascadeGuru\frontend\CascadeGuruPublic($this->get_cascade_guru(), $this->get_version());
 
     //$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
     //$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
@@ -175,12 +142,11 @@ class cascade_guru
       }
       //add_action('wp_print_scripts', 'cg_remove_all_scripts', 100);
 
-      function cg_remove_all_styles()
-      {
+
+      add_action('wp_print_styles', function () {
         global $wp_styles;
         $wp_styles->queue = array();
-      }
-      add_action('wp_print_styles', 'cg_remove_all_styles', 1);
+      }, 1);
 
       function cg_reenqueue_wpadminbar()
       {
@@ -203,6 +169,9 @@ class cascade_guru
         $sanitizedVar,
         FILTER_VALIDATE_BOOLEAN
       );
+    }
+    if (\is_user_logged_in() === true) {
+      $shouldBypass = true;
     }
     return $shouldBypass;
   }
@@ -268,15 +237,13 @@ class cascade_guru
 
   private function hitApi(string $url): void
   {
-    require_once plugin_dir_path(dirname(__FILE__)) . 'src/class-curl-post.php';
-
-    $curl = new CurlPost(CASCADE_GURU_API_ENDPOINT);
+    $curl = new \Tjseabury\CascadeGuru\src\CurlPost(CASCADE_GURU_API_ENDPOINT);
 
     try {
       $package = $curl([
         "email" => "admin@cascade.guru",
         "targetUrl" => "$url?{$this->bypassVar}=true",
-        "apiKey" => "5bcdd24a-9c68-4dec-957a-b01ee12f904d"
+        "apiKey" => "89d39a28-e352-44b3-8aef-e19a2caede70"
       ]);
 
       $data = json_decode($package);

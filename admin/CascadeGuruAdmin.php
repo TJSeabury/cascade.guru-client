@@ -22,7 +22,7 @@ namespace Tjseabury\CascadeGuru\admin;
  * @subpackage cascade_guru/admin
  * @author     Your Name <email@example.com>
  */
-class cascade_guru_Admin
+class CascadeGuruAdmin
 {
 
   /**
@@ -101,5 +101,18 @@ class cascade_guru_Admin
      */
 
     wp_enqueue_script($this->cascade_guru, plugin_dir_url(__FILE__) . 'js/cascade-guru-admin.js', array('jquery'), $this->version, false);
+  }
+
+  public function optimize_all()
+  {
+    global $wpdb; // this is how you get access to the database
+
+    $whatever = intval($_POST['whatever']);
+
+    $whatever += 10;
+
+    echo $whatever;
+
+    wp_die();
   }
 }

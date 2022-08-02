@@ -22,7 +22,7 @@ namespace Tjseabury\CascadeGuru\src;
  * @subpackage cascade_guru/src
  * @author     Your Name <email@example.com>
  */
-class cascade_guru_Deactivator
+class CascadeGuruDeactivator
 {
 
   /**

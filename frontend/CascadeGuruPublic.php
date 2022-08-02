@@ -22,7 +22,7 @@ namespace Tjseabury\CascadeGuru\frontend;
  * @subpackage cascade_guru/public
  * @author     Your Name <email@example.com>
  */
-class cascade_guru_Public
+class CascadeGuruPublic
 {
 
   /**
