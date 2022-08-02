@@ -40,7 +40,7 @@ define('CASCADE_GURU_VERSION', '1.0.0');
 /**
  * API endpoint
  */
-define('CASCADE_GURU_API_ENDPOINT', 'http://localhost:3000/api/service/optimize');
+define('CASCADE_GURU_API_ENDPOINT', 'https://cascade.guru/api/service/optimize');
 
 require __DIR__ . '/vendor/autoload.php';
 
